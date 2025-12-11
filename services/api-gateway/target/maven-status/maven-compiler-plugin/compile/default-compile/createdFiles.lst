@@ -1,0 +1,7 @@
+com\example\platform\gateway\filter\AuthErrorFilter.class
+com\example\platform\gateway\ApiGatewayApplication.class
+com\example\platform\gateway\config\GatewayConfig.class
+com\example\platform\gateway\web\RegistrationController.class
+com\example\platform\gateway\config\SecurityConfig.class
+com\example\platform\gateway\config\CorsConfig.class
+com\example\platform\gateway\filter\LoggingFilter.class

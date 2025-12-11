@@ -1,0 +1,5 @@
+com\example\platform\dataprocessor\DataProcessorApplication.class
+com\example\platform\dataprocessor\config\SecurityConfig.class
+com\example\platform\dataprocessor\messaging\BookingNotificationListener.class
+com\example\platform\dataprocessor\messaging\ProcessingListener.class
+com\example\platform\dataprocessor\config\RabbitConfig.class

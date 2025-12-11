@@ -1,0 +1,85 @@
+{
+  "realm": "app",
+  "enabled": true,
+  "registrationAllowed": true,
+  "registrationEmailAsUsername": false,
+  "rememberMe": true,
+  "verifyEmail": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "browserSecurityHeaders": {
+    "contentSecurityPolicy": "frame-src 'self'; frame-ancestors 'self'; object-src 'none';",
+    "xContentTypeOptions": "nosniff",
+    "xRobotsTag": "none",
+    "xFrameOptions": "SAMEORIGIN"
+  },
+  "clients": [
+    {
+      "clientId": "api-gateway",
+      "secret": "gateway-secret",
+      "serviceAccountsEnabled": true,
+      "publicClient": false,
+      "directAccessGrantsEnabled": true,
+      "redirectUris": ["*"],
+      "protocol": "openid-connect"
+    },
+    {
+      "clientId": "file-service",
+      "secret": "files-secret",
+      "serviceAccountsEnabled": true,
+      "publicClient": false,
+      "redirectUris": ["*"],
+      "protocol": "openid-connect"
+    },
+    {
+      "clientId": "service-two",
+      "secret": "service-two-secret",
+      "serviceAccountsEnabled": true,
+      "publicClient": false,
+      "redirectUris": ["*"],
+      "protocol": "openid-connect"
+    },
+    {
+      "clientId": "data-processor",
+      "secret": "processor-secret",
+      "serviceAccountsEnabled": true,
+      "publicClient": false,
+      "redirectUris": ["*"],
+      "protocol": "openid-connect"
+    },
+    {
+      "clientId": "registration-client",
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "redirectUris": ["*"],
+      "webOrigins": ["*"],
+      "protocol": "openid-connect"
+    }
+  ],
+  "users": [
+    {
+      "username": "user",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["user"],
+      "requiredActions": []
+    }
+  ],
+  "roles": {
+    "realm": [
+      { "name": "user" },
+      { "name": "admin" }
+    ]
+  }
+}
+

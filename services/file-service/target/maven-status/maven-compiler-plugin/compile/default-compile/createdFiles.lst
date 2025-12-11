@@ -1,0 +1,10 @@
+com\example\platform\fileservice\model\ResourceType.class
+com\example\platform\fileservice\service\FileStorageService.class
+com\example\platform\fileservice\config\MinioConfig.class
+com\example\platform\fileservice\FileServiceApplication.class
+com\example\platform\fileservice\dto\ResourceDTO.class
+com\example\platform\fileservice\repository\ResourceRepository.class
+com\example\platform\fileservice\web\ResourceController.class
+com\example\platform\fileservice\config\SecurityConfig.class
+com\example\platform\fileservice\service\ResourceService.class
+com\example\platform\fileservice\model\Resource.class

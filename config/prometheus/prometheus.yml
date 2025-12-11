@@ -1,0 +1,25 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["prometheus:9090"]
+  - job_name: "api-gateway"
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["api-gateway:8080"]
+  - job_name: "file-service"
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["file-service:8081"]
+  - job_name: "service-two"
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["service-two:8082"]
+  - job_name: "data-processor"
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["data-processor:8083"]
+
+

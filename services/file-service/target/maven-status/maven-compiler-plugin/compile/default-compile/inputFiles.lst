@@ -1,0 +1,11 @@
+C:\Users\ILYA\Desktop\esdp\Java project Aidana\services\file-service\src\main\java\com\example\platform\fileservice\config\MinioConfig.java
+C:\Users\ILYA\Desktop\esdp\Java project Aidana\services\file-service\src\main\java\com\example\platform\fileservice\config\RedisConfig.java
+C:\Users\ILYA\Desktop\esdp\Java project Aidana\services\file-service\src\main\java\com\example\platform\fileservice\config\SecurityConfig.java
+C:\Users\ILYA\Desktop\esdp\Java project Aidana\services\file-service\src\main\java\com\example\platform\fileservice\dto\ResourceDTO.java
+C:\Users\ILYA\Desktop\esdp\Java project Aidana\services\file-service\src\main\java\com\example\platform\fileservice\FileServiceApplication.java
+C:\Users\ILYA\Desktop\esdp\Java project Aidana\services\file-service\src\main\java\com\example\platform\fileservice\model\Resource.java
+C:\Users\ILYA\Desktop\esdp\Java project Aidana\services\file-service\src\main\java\com\example\platform\fileservice\model\ResourceType.java
+C:\Users\ILYA\Desktop\esdp\Java project Aidana\services\file-service\src\main\java\com\example\platform\fileservice\repository\ResourceRepository.java
+C:\Users\ILYA\Desktop\esdp\Java project Aidana\services\file-service\src\main\java\com\example\platform\fileservice\service\FileStorageService.java
+C:\Users\ILYA\Desktop\esdp\Java project Aidana\services\file-service\src\main\java\com\example\platform\fileservice\service\ResourceService.java
+C:\Users\ILYA\Desktop\esdp\Java project Aidana\services\file-service\src\main\java\com\example\platform\fileservice\web\ResourceController.java

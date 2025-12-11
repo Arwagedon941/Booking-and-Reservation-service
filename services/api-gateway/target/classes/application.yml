@@ -1,0 +1,43 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://keycloak:8080/realms/app}
+  cloud:
+    gateway:
+      default-filters:
+        - RemoveRequestHeader=Cookie
+      httpclient:
+        wiretap: false
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOriginPatterns: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            allowCredentials: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+services:
+  resource-service:
+    url: ${RESOURCE_SERVICE_URL:http://resource-service:8081}
+  booking-service:
+    url: ${BOOKING_SERVICE_URL:http://booking-service:8082}
+  notification-service:
+    url: ${NOTIFICATION_SERVICE_URL:http://notification-service:8083}
+  keycloak:
+    url: ${KEYCLOAK_URL:http://keycloak:8080}
+
