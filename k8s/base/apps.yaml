@@ -4,7 +4,7 @@ metadata:
   name: api-gateway
   namespace: platform
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: api-gateway
@@ -20,14 +20,39 @@ spec:
           env:
             - name: KEYCLOAK_ISSUER_URI
               value: http://keycloak.platform.svc.cluster.local:8080/realms/app
-            - name: FILE_SERVICE_URL
-              value: http://file-service:8081
-            - name: SERVICE_TWO_URL
-              value: http://service-two:8082
-            - name: DATA_PROCESSOR_URL
-              value: http://data-processor:8083
+            - name: RESOURCE_SERVICE_URL
+              value: http://resource-service:8081
+            - name: BOOKING_SERVICE_URL
+              value: http://booking-service:8082
+            - name: NOTIFICATION_SERVICE_URL
+              value: http://notification-service:8083
+            - name: KEYCLOAK_URL
+              value: http://keycloak:8080
           ports:
             - containerPort: 8080
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
 ---
 apiVersion: v1
 kind: Service
@@ -44,21 +69,21 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: file-service
+  name: resource-service
   namespace: platform
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
-      app: file-service
+      app: resource-service
   template:
     metadata:
       labels:
-        app: file-service
+        app: resource-service
     spec:
       containers:
-        - name: file-service
-          image: file-service:latest
+        - name: resource-service
+          image: resource-service:latest
           imagePullPolicy: IfNotPresent
           env:
             - name: DB_URL
@@ -87,17 +112,42 @@ spec:
               value: rabbitmq
             - name: REDIS_HOST
               value: redis
+            - name: SPRING_CACHE_TYPE
+              value: redis
           ports:
             - containerPort: 8081
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "300m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8081
+            initialDelaySeconds: 90
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8081
+            initialDelaySeconds: 60
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: file-service
+  name: resource-service
   namespace: platform
 spec:
   selector:
-    app: file-service
+    app: resource-service
   ports:
     - port: 8081
       targetPort: 8081
@@ -105,21 +155,21 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: data-processor
+  name: notification-service
   namespace: platform
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
-      app: data-processor
+      app: notification-service
   template:
     metadata:
       labels:
-        app: data-processor
+        app: notification-service
     spec:
       containers:
-        - name: data-processor
-          image: data-processor:latest
+        - name: notification-service
+          image: notification-service:latest
           imagePullPolicy: IfNotPresent
           env:
             - name: DB_URL
@@ -149,18 +199,41 @@ spec:
             - name: REDIS_HOST
               value: redis
             - name: APP_QUEUE
-              value: data-tasks
+              value: booking-notifications
           ports:
             - containerPort: 8083
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8083
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8083
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: data-processor
+  name: notification-service
   namespace: platform
 spec:
   selector:
-    app: data-processor
+    app: notification-service
   ports:
     - port: 8083
       targetPort: 8083
@@ -168,36 +241,81 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: service-two
+  name: booking-service
   namespace: platform
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
-      app: service-two
+      app: booking-service
   template:
     metadata:
       labels:
-        app: service-two
+        app: booking-service
     spec:
       containers:
-        - name: service-two
-          image: service-two:latest
+        - name: booking-service
+          image: booking-service:latest
           imagePullPolicy: IfNotPresent
           env:
+            - name: DB_URL
+              value: jdbc:postgresql://postgres:5432/platform
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: password
             - name: KEYCLOAK_ISSUER_URI
               value: http://keycloak.platform.svc.cluster.local:8080/realms/app
+            - name: RESOURCE_SERVICE_URL
+              value: http://resource-service:8081
+            - name: RABBITMQ_HOST
+              value: rabbitmq
+            - name: REDIS_HOST
+              value: redis
+            - name: APP_QUEUE
+              value: booking-notifications
+            - name: SPRING_CACHE_TYPE
+              value: redis
           ports:
             - containerPort: 8082
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "300m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8082
+            initialDelaySeconds: 90
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8082
+            initialDelaySeconds: 60
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: service-two
+  name: booking-service
   namespace: platform
 spec:
   selector:
-    app: service-two
+    app: booking-service
   ports:
     - port: 8082
       targetPort: 8082
@@ -209,8 +327,16 @@ metadata:
   namespace: platform
   annotations:
     kubernetes.io/ingress.class: nginx
-    cert-manager.io/cluster-issuer: letsencrypt
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    # Для production с cert-manager раскомментируйте:
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
+  ingressClassName: nginx
   tls:
     - hosts:
         - app.local
@@ -226,6 +352,33 @@ spec:
                 name: api-gateway
                 port:
                   number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: keycloak
+  namespace: platform
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - keycloak.app.local
+      secretName: keycloak-tls
+  rules:
+    - host: keycloak.app.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: keycloak
+                port:
+                  number: 8080
 
 
 

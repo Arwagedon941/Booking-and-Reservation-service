@@ -4,11 +4,7 @@ spring:
   application:
     name: resource-service
   cache:
-    type: simple
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
-      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+    type: redis
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/platform}
     username: ${DB_USER:platform}
