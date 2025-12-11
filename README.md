@@ -27,6 +27,7 @@
 - Фильтрация по типу и доступности
 - Проверка доступности ресурсов
 - Кеширование в Redis
+- Работа с файлами через MinIO (upload/list/download/delete)
 
 ### Booking Service
 - Создание бронирований с проверкой доступности
@@ -38,6 +39,12 @@
 ### Notification Service
 - Асинхронная обработка уведомлений о бронированиях
 - Обработка событий подтверждения и отмены
+
+### File API (через Gateway: `/files`)
+- `POST /files` (multipart/form-data) — загрузка файла (требуется авторизация)
+- `GET /files` — список файлов в бакете (требуется авторизация)
+- `GET /files/{objectName}` — скачивание файла (требуется авторизация)
+- `DELETE /files/{objectName}` — удаление файла (роль admin)
 
 ## Фронтенд
 
@@ -151,7 +158,7 @@ POST /bookings
 - **RabbitMQ Management**: http://localhost:15672 (guest/guest)
 - **MinIO Console**: http://localhost:9001 (minioadmin/minioadmin)
 - **Prometheus**: http://localhost:9090
-- **Grafana**: http://localhost:3000 (admin/admin)
+- **Grafana**: http://localhost:3001 (admin/admin)
 
 ## Kubernetes
 

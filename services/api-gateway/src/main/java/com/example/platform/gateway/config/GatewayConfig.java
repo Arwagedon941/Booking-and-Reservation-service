@@ -24,8 +24,9 @@ public class GatewayConfig {
     @Bean
     public RouteLocator routeLocator(RouteLocatorBuilder builder) {
         return builder.routes()
-                .route("resource-service", r -> r.path("/resources/**").uri(resourceServiceUrl))
-                .route("booking-service", r -> r.path("/bookings/**").uri(bookingServiceUrl))
+                .route("resource-service", r -> r.path("/resources", "/resources/**").uri(resourceServiceUrl))
+                .route("file-service", r -> r.path("/files", "/files/**").uri(resourceServiceUrl))
+                .route("booking-service", r -> r.path("/bookings", "/bookings/**").uri(bookingServiceUrl))
                 .route("notification-service", r -> r.path("/notifications/**").uri(notificationServiceUrl))
                 .route("keycloak-auth", r -> r.path("/auth/**")
                         .filters(f -> f.rewritePath("/auth/(?<segment>.*)", "/${segment}"))

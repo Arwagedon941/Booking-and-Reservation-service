@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { Calendar, Clock, Package, CheckCircle } from 'lucide-react'
 import { api, Resource, ResourceType } from '../services/api'
 import toast from 'react-hot-toast'
+import { Download } from 'lucide-react'
 
 export default function CreateBooking() {
   const [searchParams] = useSearchParams()
@@ -19,6 +20,7 @@ export default function CreateBooking() {
   const [loading, setLoading] = useState(false)
   const [checkingAvailability, setCheckingAvailability] = useState(false)
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null)
+  const [resourceFiles, setResourceFiles] = useState<string[]>([])
 
   useEffect(() => {
     loadResources()
@@ -30,6 +32,11 @@ export default function CreateBooking() {
     } else {
       setIsAvailable(null)
     }
+    if (selectedResourceId) {
+      loadFiles(selectedResourceId)
+    } else {
+      setResourceFiles([])
+    }
   }, [selectedResourceId, startTime, endTime])
 
   const loadResources = async () => {
@@ -38,6 +45,15 @@ export default function CreateBooking() {
       setResources(data)
     } catch (error) {
       toast.error('Ошибка загрузки ресурсов')
+    }
+  }
+
+  const loadFiles = async (resId: number) => {
+    try {
+      const files = await api.files.list(resId)
+      setResourceFiles(files)
+    } catch (error) {
+      setResourceFiles([])
     }
   }
 
@@ -162,6 +178,44 @@ export default function CreateBooking() {
               />
             </div>
           </div>
+
+          {selectedResourceId && resourceFiles.length > 0 && (
+            <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+              <h3 className="text-sm font-semibold text-gray-800 mb-2 flex items-center">
+                <Download className="w-4 h-4 mr-2" />
+                Файлы ресурса
+              </h3>
+              <ul className="space-y-2">
+                {resourceFiles.map((file) => (
+                  <li key={file} className="flex items-center justify-between text-sm text-gray-700">
+                    <span className="break-all">{file.replace(`resource-${selectedResourceId}/`, '')}</span>
+                    <button
+                      type="button"
+                      className="text-blue-600 hover:text-blue-700 text-xs"
+                      onClick={async () => {
+                        try {
+                          const blob = await api.files.download(
+                            file.replace(`resource-${selectedResourceId}/`, ''),
+                            selectedResourceId
+                          )
+                          const url = window.URL.createObjectURL(blob)
+                          const a = document.createElement('a')
+                          a.href = url
+                          a.download = file.split('/').pop() || 'file'
+                          a.click()
+                          window.URL.revokeObjectURL(url)
+                        } catch {
+                          toast.error('Ошибка скачивания файла')
+                        }
+                      }}
+                    >
+                      Скачать
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {checkingAvailability && (
             <div className="flex items-center text-blue-600">

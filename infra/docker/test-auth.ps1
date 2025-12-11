@@ -37,3 +37,5 @@ Write-Host "`n=== Check API Gateway logs ==="
 Write-Host "docker logs docker-api-gateway-1 --tail 50"
 
 
+
+

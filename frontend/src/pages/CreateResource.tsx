@@ -17,6 +17,7 @@ const RESOURCE_TYPES: { value: ResourceType; label: string }[] = [
 export default function CreateResource() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
+  const [files, setFiles] = useState<FileList | null>(null)
   const [form, setForm] = useState({
     name: '',
     description: '',
@@ -54,7 +55,7 @@ export default function CreateResource() {
 
     setLoading(true)
     try {
-      await api.resources.create({
+      const created = await api.resources.create({
         name: form.name,
         description: form.description,
         type: form.type,
@@ -62,6 +63,14 @@ export default function CreateResource() {
         capacity: Number(form.capacity),
         available: form.available,
       })
+
+      // Загрузка прикреплённых файлов с привязкой к ресурсу
+      if (files && files.length > 0) {
+        for (const file of Array.from(files)) {
+          await api.files.upload(file, created.id)
+        }
+      }
+
       toast.success('Ресурс создан')
       navigate('/resources')
     } catch (error: any) {
@@ -188,6 +197,19 @@ export default function CreateResource() {
             />
           </div>
 
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Прикрепить файлы (опционально)
+            </label>
+            <input
+              type="file"
+              multiple
+              onChange={(e) => setFiles(e.target.files)}
+              className="block w-full text-sm text-gray-700"
+            />
+            <p className="text-xs text-gray-500 mt-1">Файлы будут связаны с созданным ресурсом</p>
+          </div>
+
           <div className="flex space-x-4">
             <motion.button
               type="submit"
@@ -219,4 +241,5 @@ export default function CreateResource() {
     </div>
   )
 }
+
 

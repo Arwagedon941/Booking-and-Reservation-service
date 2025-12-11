@@ -51,6 +51,7 @@ public class BookingService {
         this.restTemplate = restTemplate;
     }
     
+    @CacheEvict(value = "bookings", allEntries = true)
     public BookingDTO createBooking(BookingDTO dto, String userId, String bearerToken) {
         // Валидация времени
         if (dto.getStartTime().isBefore(LocalDateTime.now())) {
@@ -89,7 +90,6 @@ public class BookingService {
         booking.setNotes(dto.getNotes());
         
         Booking saved = bookingRepository.save(booking);
-        evictCache();
         
         // Отправляем уведомление в очередь
         sendBookingNotification(saved);
@@ -118,7 +118,7 @@ public class BookingService {
                 .collect(Collectors.toList());
     }
     
-    @CacheEvict(value = "bookings", key = "#id")
+    @CacheEvict(value = "bookings", key = "#id", allEntries = true)
     public Optional<BookingDTO> cancelBooking(Long id, String userId) {
         return bookingRepository.findByIdAndUserId(id, userId)
                 .map(booking -> {
@@ -130,7 +130,6 @@ public class BookingService {
                     }
                     booking.setStatus(BookingStatus.CANCELLED);
                     Booking updated = bookingRepository.save(booking);
-                    evictCache();
                     sendBookingNotification(updated);
                     return toDTO(updated);
                 });
@@ -199,8 +198,5 @@ public class BookingService {
         );
     }
     
-    private void evictCache() {
-        // no-op (Redis disabled)
-    }
 }
 

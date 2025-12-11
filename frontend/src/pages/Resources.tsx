@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Package, Plus, Users } from 'lucide-react'
+import { Package, Plus, Users, Trash2 } from 'lucide-react'
 import { api, Resource, ResourceType } from '../services/api'
 import toast from 'react-hot-toast'
+import { useMemo } from 'react'
 
 const resourceTypeLabels: Record<ResourceType, string> = {
   MEETING_ROOM: 'Переговорка',
@@ -27,6 +28,18 @@ export default function Resources() {
   const [resources, setResources] = useState<Resource[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<string>('ALL')
+  const isAdmin = useMemo(() => {
+    try {
+      const token = localStorage.getItem('token')
+      if (!token) return false
+      const [, payloadBase64] = token.split('.')
+      const payload = JSON.parse(atob(payloadBase64))
+      const roles: string[] = payload?.realm_access?.roles || []
+      return roles.includes('admin')
+    } catch {
+      return false
+    }
+  }, [])
 
   useEffect(() => {
     loadResources()
@@ -40,6 +53,21 @@ export default function Resources() {
       toast.error('Ошибка загрузки ресурсов')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleDelete = async (id: number) => {
+    if (!isAdmin) {
+      toast.error('Требуется роль admin')
+      return
+    }
+    if (!window.confirm('Удалить ресурс?')) return
+    try {
+      await api.resources.delete(id)
+      toast.success('Ресурс удален')
+      await loadResources()
+    } catch (error) {
+      toast.error('Ошибка удаления ресурса')
     }
   }
 
@@ -139,7 +167,20 @@ export default function Resources() {
                     {resourceTypeLabels[resource.type]}
                   </span>
                 </div>
-                <Package className="w-8 h-8 text-blue-600" />
+                <div className="flex items-center space-x-2">
+                  <Package className="w-8 h-8 text-blue-600" />
+                  {isAdmin && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleDelete(resource.id)
+                      }}
+                      className="p-2 rounded-md bg-red-50 hover:bg-red-100 text-red-600 transition"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
               </div>
 
               <p className="text-gray-600 mb-4 line-clamp-2">{resource.description}</p>

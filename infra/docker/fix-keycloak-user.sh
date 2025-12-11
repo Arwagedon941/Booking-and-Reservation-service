@@ -25,3 +25,5 @@ USER_ID=$(/opt/keycloak/bin/kcadm.sh get users -r app --username user -q | grep 
 echo "User 'user' created successfully with password 'password'"
 
 
+
+

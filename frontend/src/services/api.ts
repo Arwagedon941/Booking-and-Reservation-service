@@ -64,6 +64,10 @@ export interface Booking {
   resource?: Resource
 }
 
+export interface FileInfo {
+  name: string
+}
+
 export const api = {
   resources: {
     getAll: async (): Promise<Resource[]> => {
@@ -111,6 +115,35 @@ export const api = {
         params: { resourceId, startTime, endTime },
       })
       return response.data
+    },
+  },
+  files: {
+    list: async (resourceId?: number): Promise<string[]> => {
+      const response = await apiClient.get('/files', {
+        params: resourceId ? { resourceId } : undefined,
+      })
+      return response.data
+    },
+    upload: async (file: File, resourceId?: number): Promise<string> => {
+      const formData = new FormData()
+      formData.append('file', file)
+      if (resourceId !== undefined) {
+        formData.append('resourceId', String(resourceId))
+      }
+      const response = await apiClient.post('/files', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      return response.data
+    },
+    download: async (name: string, resourceId?: number): Promise<Blob> => {
+      const response = await apiClient.get(`/files/download`, {
+        params: resourceId ? { name, resourceId } : { name },
+        responseType: 'blob',
+      })
+      return response.data
+    },
+    delete: async (name: string): Promise<void> => {
+      await apiClient.delete(`/files/${encodeURIComponent(name)}`)
     },
   },
 }

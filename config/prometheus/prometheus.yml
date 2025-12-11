@@ -9,17 +9,18 @@ scrape_configs:
     metrics_path: /actuator/prometheus
     static_configs:
       - targets: ["api-gateway:8080"]
-  - job_name: "file-service"
+  - job_name: "resource-service"
     metrics_path: /actuator/prometheus
     static_configs:
-      - targets: ["file-service:8081"]
-  - job_name: "service-two"
+      - targets: ["resource-service:8081"]
+  - job_name: "booking-service"
     metrics_path: /actuator/prometheus
     static_configs:
-      - targets: ["service-two:8082"]
-  - job_name: "data-processor"
+      - targets: ["booking-service:8082"]
+  - job_name: "notification-service"
     metrics_path: /actuator/prometheus
     static_configs:
-      - targets: ["data-processor:8083"]
+      - targets: ["notification-service:8083"]
+
 
 
