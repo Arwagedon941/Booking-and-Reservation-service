@@ -1,7 +1,0 @@
-C:\Users\ILYA\Desktop\esdp\Java project Aidana\services\api-gateway\src\main\java\com\example\platform\gateway\ApiGatewayApplication.java
-C:\Users\ILYA\Desktop\esdp\Java project Aidana\services\api-gateway\src\main\java\com\example\platform\gateway\config\CorsConfig.java
-C:\Users\ILYA\Desktop\esdp\Java project Aidana\services\api-gateway\src\main\java\com\example\platform\gateway\config\GatewayConfig.java
-C:\Users\ILYA\Desktop\esdp\Java project Aidana\services\api-gateway\src\main\java\com\example\platform\gateway\config\SecurityConfig.java
-C:\Users\ILYA\Desktop\esdp\Java project Aidana\services\api-gateway\src\main\java\com\example\platform\gateway\filter\AuthErrorFilter.java
-C:\Users\ILYA\Desktop\esdp\Java project Aidana\services\api-gateway\src\main\java\com\example\platform\gateway\filter\LoggingFilter.java
-C:\Users\ILYA\Desktop\esdp\Java project Aidana\services\api-gateway\src\main\java\com\example\platform\gateway\web\RegistrationController.java
