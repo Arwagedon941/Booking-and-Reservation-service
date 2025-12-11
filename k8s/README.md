@@ -276,3 +276,4 @@ kubectl delete -f k8s/base/hpa.yaml
 kubectl delete -f k8s/base/pdb.yaml
 ```
 
+

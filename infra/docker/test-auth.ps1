@@ -39,3 +39,4 @@ Write-Host "docker logs docker-api-gateway-1 --tail 50"
 
 
 
+

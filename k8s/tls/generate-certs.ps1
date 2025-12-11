@@ -30,3 +30,4 @@ Write-Host "openssl pkcs12 -in certs/temp.pfx -out certs/tls.key -nocerts -nodes
 Write-Host "`nДля создания Kubernetes Secret выполните:"
 Write-Host "kubectl create secret tls api-gateway-tls --cert=certs/tls.crt --key=certs/tls.key -n platform"
 
+

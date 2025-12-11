@@ -50,8 +50,15 @@ services:
 
   redis:
     image: redis:7
+    command: redis-server --bind 0.0.0.0
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
 
   prometheus:
     image: prom/prometheus:v2.54.1
@@ -103,14 +110,21 @@ services:
       MINIO_SECRET_KEY: minioadmin
       RABBITMQ_HOST: rabbitmq
       REDIS_HOST: redis
+      REDIS_PORT: 6379
     depends_on:
-      - postgres
-      - keycloak
-      - minio
-      - rabbitmq
-      - redis
+      postgres:
+        condition: service_started
+      keycloak:
+        condition: service_started
+      minio:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+      redis:
+        condition: service_healthy
     ports:
       - "8081:8081"
+    restart: on-failure
 
   notification-service:
     build:
@@ -127,15 +141,22 @@ services:
       MINIO_SECRET_KEY: minioadmin
       RABBITMQ_HOST: rabbitmq
       REDIS_HOST: redis
+      REDIS_PORT: 6379
       APP_QUEUE: booking-notifications
     depends_on:
-      - postgres
-      - keycloak
-      - minio
-      - rabbitmq
-      - redis
+      postgres:
+        condition: service_started
+      keycloak:
+        condition: service_started
+      minio:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+      redis:
+        condition: service_healthy
     ports:
       - "8083:8083"
+    restart: on-failure
 
   booking-service:
     build:
@@ -149,15 +170,22 @@ services:
       RESOURCE_SERVICE_URL: http://resource-service:8081
       RABBITMQ_HOST: rabbitmq
       REDIS_HOST: redis
+      REDIS_PORT: 6379
       APP_QUEUE: booking-notifications
     depends_on:
-      - keycloak
-      - postgres
-      - resource-service
-      - rabbitmq
-      - redis
+      keycloak:
+        condition: service_started
+      postgres:
+        condition: service_started
+      resource-service:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+      redis:
+        condition: service_healthy
     ports:
       - "8082:8082"
+    restart: on-failure
 
   frontend:
     build:
