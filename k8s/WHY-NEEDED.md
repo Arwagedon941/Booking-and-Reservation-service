@@ -189,3 +189,5 @@ kubectl apply -f k8s/base/
 3. Применить манифесты: `kubectl apply -f k8s/base/`
 
 
+
+

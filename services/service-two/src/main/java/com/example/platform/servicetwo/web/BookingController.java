@@ -10,6 +10,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/bookings")
@@ -65,15 +66,26 @@ public class BookingController {
     }
     
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> cancelBooking(@PathVariable Long id,
+    public ResponseEntity<Void> cancelBooking(@PathVariable(name = "id") Long id,
                                              @AuthenticationPrincipal Jwt jwt) {
         String userId = jwt.getSubject();
+        boolean isAdmin = isAdmin(jwt);
+        
         try {
-            bookingService.cancelBooking(id, userId)
-                    .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
+            Optional<BookingDTO> result = isAdmin 
+                ? bookingService.cancelBookingAsAdmin(id)
+                : bookingService.cancelBooking(id, userId);
+            
+            if (result.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            
             return ResponseEntity.noContent().build();
-        } catch (IllegalArgumentException | IllegalStateException e) {
+        } catch (IllegalStateException e) {
+            // Бронирование уже отменено или завершено
             return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
     
@@ -93,8 +105,18 @@ public class BookingController {
     }
     
     private boolean isAdmin(Jwt jwt) {
-        return jwt.getClaimAsStringList("realm_access") != null &&
-               jwt.getClaimAsStringList("realm_access").contains("admin");
+        try {
+            Object realmAccess = jwt.getClaim("realm_access");
+            if (realmAccess instanceof java.util.Map<?, ?> map) {
+                Object roles = map.get("roles");
+                if (roles instanceof java.util.Collection<?> col) {
+                    return col.contains("admin");
+                }
+            }
+        } catch (Exception e) {
+            // Игнорируем ошибки парсинга
+        }
+        return false;
     }
 }
 

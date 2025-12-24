@@ -50,15 +50,18 @@ services:
 
   redis:
     image: redis:7
-    command: redis-server --bind 0.0.0.0
+    command: redis-server --bind 0.0.0.0 --protected-mode no
     ports:
       - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
+      interval: 2s
       timeout: 3s
-      retries: 5
-      start_period: 5s
+      retries: 20
+      start_period: 20s
+    restart: unless-stopped
+    networks:
+      - default
 
   prometheus:
     image: prom/prometheus:v2.54.1
@@ -111,6 +114,7 @@ services:
       RABBITMQ_HOST: rabbitmq
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      SPRING_CACHE_TYPE: redis
     depends_on:
       postgres:
         condition: service_started
@@ -125,6 +129,8 @@ services:
     ports:
       - "8081:8081"
     restart: on-failure
+    networks:
+      - default
 
   notification-service:
     build:
@@ -171,6 +177,7 @@ services:
       RABBITMQ_HOST: rabbitmq
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      SPRING_CACHE_TYPE: redis
       APP_QUEUE: booking-notifications
     depends_on:
       keycloak:
@@ -186,6 +193,8 @@ services:
     ports:
       - "8082:8082"
     restart: on-failure
+    networks:
+      - default
 
   frontend:
     build:
@@ -200,3 +209,6 @@ volumes:
   db_data:
   minio_data:
 
+networks:
+  default:
+    driver: bridge

@@ -31,3 +31,5 @@ Write-Host "`nДля создания Kubernetes Secret выполните:"
 Write-Host "kubectl create secret tls api-gateway-tls --cert=certs/tls.crt --key=certs/tls.key -n platform"
 
 
+
+

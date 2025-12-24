@@ -28,3 +28,5 @@ echo "kubectl create secret tls api-gateway-tls --cert=certs/tls.crt --key=certs
 echo "kubectl create secret tls keycloak-tls --cert=certs/keycloak-tls.crt --key=certs/keycloak-tls.key -n platform"
 
 
+
+

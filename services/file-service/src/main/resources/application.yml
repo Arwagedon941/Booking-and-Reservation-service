@@ -21,6 +21,15 @@ spring:
   redis:
     host: ${REDIS_HOST:localhost}
     port: ${REDIS_PORT:6379}
+    timeout: 10000ms
+    connect-timeout: 10000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 1
+        max-wait: 10000ms
+      shutdown-timeout: 200ms
   security:
     oauth2:
       resourceserver:

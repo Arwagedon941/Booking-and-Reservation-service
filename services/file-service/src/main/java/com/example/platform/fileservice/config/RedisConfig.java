@@ -8,10 +8,14 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.boot.autoconfigure.data.redis.LettuceClientConfigurationBuilderCustomizer;
+import io.lettuce.core.ClientOptions;
+import io.lettuce.core.SocketOptions;
 
 import java.time.Duration;
 
@@ -19,6 +23,22 @@ import java.time.Duration;
 @EnableCaching
 @ConditionalOnProperty(name = "spring.cache.type", havingValue = "redis")
 public class RedisConfig {
+
+    @Bean
+    public LettuceClientConfigurationBuilderCustomizer lettuceClientConfigurationBuilderCustomizer() {
+        return clientConfigurationBuilder -> {
+            ClientOptions clientOptions = ClientOptions.builder()
+                    .socketOptions(SocketOptions.builder()
+                            .connectTimeout(Duration.ofSeconds(10))
+                            .keepAlive(true)
+                            .tcpNoDelay(true)
+                            .build())
+                    .autoReconnect(true)
+                    .pingBeforeActivateConnection(true)
+                    .build();
+            clientConfigurationBuilder.clientOptions(clientOptions);
+        };
+    }
 
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {

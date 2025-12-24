@@ -139,3 +139,5 @@ kubectl describe pod <pod-name> -n platform
 Подробнее: см. `k8s/README.md`
 
 
+
+
