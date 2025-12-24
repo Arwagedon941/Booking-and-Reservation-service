@@ -120,19 +120,58 @@ public class BookingService {
     
     @CacheEvict(value = "bookings", key = "#id", allEntries = true)
     public Optional<BookingDTO> cancelBooking(Long id, String userId) {
-        return bookingRepository.findByIdAndUserId(id, userId)
-                .map(booking -> {
-                    if (booking.getStatus() == BookingStatus.CANCELLED) {
-                        throw new IllegalStateException("Booking is already cancelled");
-                    }
-                    if (booking.getStatus() == BookingStatus.COMPLETED) {
-                        throw new IllegalStateException("Cannot cancel completed booking");
-                    }
-                    booking.setStatus(BookingStatus.CANCELLED);
-                    Booking updated = bookingRepository.save(booking);
-                    sendBookingNotification(updated);
-                    return toDTO(updated);
-                });
+        Optional<Booking> bookingOpt = bookingRepository.findByIdAndUserId(id, userId);
+        if (bookingOpt.isEmpty()) {
+            return Optional.empty();
+        }
+        
+        Booking booking = bookingOpt.get();
+        if (booking.getStatus() == BookingStatus.CANCELLED) {
+            throw new IllegalStateException("Booking is already cancelled");
+        }
+        if (booking.getStatus() == BookingStatus.COMPLETED) {
+            throw new IllegalStateException("Cannot cancel completed booking");
+        }
+        
+        booking.setStatus(BookingStatus.CANCELLED);
+        Booking updated = bookingRepository.save(booking);
+        
+        try {
+            sendBookingNotification(updated);
+        } catch (Exception e) {
+            log.warn("Failed to send booking notification: {}", e.getMessage());
+            // Не прерываем операцию, если уведомление не отправилось
+        }
+        
+        return Optional.of(toDTO(updated));
+    }
+    
+    @CacheEvict(value = "bookings", key = "#id", allEntries = true)
+    public Optional<BookingDTO> cancelBookingAsAdmin(Long id) {
+        Optional<Booking> bookingOpt = bookingRepository.findById(id);
+        if (bookingOpt.isEmpty()) {
+            return Optional.empty();
+        }
+        
+        Booking booking = bookingOpt.get();
+        if (booking.getStatus() == BookingStatus.CANCELLED) {
+            throw new IllegalStateException("Booking is already cancelled");
+        }
+        if (booking.getStatus() == BookingStatus.COMPLETED) {
+            throw new IllegalStateException("Cannot cancel completed booking");
+        }
+        
+        booking.setStatus(BookingStatus.CANCELLED);
+        Booking updated = bookingRepository.save(booking);
+        
+        try {
+            sendBookingNotification(updated);
+        } catch (Exception e) {
+            log.warn("Failed to send booking notification: {}", e.getMessage());
+            // Не прерываем операцию, если уведомление не отправилось
+        }
+        
+        return Optional.of(toDTO(updated));
     }
     
     @Transactional(readOnly = true)
